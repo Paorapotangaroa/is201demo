@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Wars Jeopardy</title>
+    <link rel="stylesheet" href="css/ai.css" />
+</head>
+
+<body>
+    <h1>Star Wars Jeopardy</h1>
+    <h2>Score: <span id="score">0</span></h2>
+    <div id="board"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div id="questionText"></div>
+            <input type="text" id="answerInput" placeholder="Your Answer" />
+            <br/>
+            <button onclick="submitAnswer()">Submit</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = ["Jedi", "Sith", "Planets", "Droids", "Ships"];
+
+        const questions = {
+            "Jedi": [{
+                q: "Who trained Obi-Wan Kenobi?",
+                a: "Qui-Gon Jinn"
+            }, {
+                q: "Who is the chosen one?",
+                a: "Anakin Skywalker"
+            }, {
+                q: "Who was Yoda's last student?",
+                a: "Luke Skywalker"
+            }, {
+                q: "Which Jedi was once a Sith named Darth Revan?",
+                a: "Revan"
+            }, {
+                q: "Who leads the Jedi High Council?",
+                a: "Yoda"
+            }],
+            "Sith": [{
+                q: "Who is Darth Sidious?",
+                a: "Palpatine"
+            }, {
+                q: "What is Darth Vader's real name?",
+                a: "Anakin Skywalker"
+            }, {
+                q: "Which Sith uses a double-bladed red lightsaber?",
+                a: "Darth Maul"
+            }, {
+                q: "What Rule did Darth Bane create?",
+                a: "Rule of Two"
+            }, {
+                q: "Who was the Sith Lord in Episode IX?",
+                a: "Emperor Palpatine"
+            }],
+            "Planets": [{
+                q: "Where is Luke Skywalker from?",
+                a: "Tatooine"
+            }, {
+                q: "What planet is the Jedi Temple on?",
+                a: "Coruscant"
+            }, {
+                q: "Where is Cloud City located?",
+                a: "Bespin"
+            }, {
+                q: "Which planet was destroyed by the Death Star first?",
+                a: "Alderaan"
+            }, {
+                q: "What desert planet appears in both trilogies?",
+                a: "Tatooine"
+            }],
+            "Droids": [{
+                q: "Who is the golden protocol droid?",
+                a: "C-3PO"
+            }, {
+                q: "What astromech droid accompanies Anakin and Luke?",
+                a: "R2-D2"
+            }, {
+                q: "Who says 'Roger Roger'?",
+                a: "Battle Droid"
+            }, {
+                q: "Which droid was reprogrammed by Cassian Andor?",
+                a: "K-2SO"
+            }, {
+                q: "What droid leads the Separatist army?",
+                a: "General Grievous"
+            }],
+            "Ships": [{
+                q: "What ship did Han Solo pilot?",
+                a: "Millennium Falcon"
+            }, {
+                q: "Which ship class is a Star Destroyer?",
+                a: "Imperial I-class"
+            }, {
+                q: "Name the Jedi starfighter used in Clone Wars.",
+                a: "Delta-7"
+            }, {
+                q: "What ship does Boba Fett use?",
+                a: "Slave I"
+            }, {
+                q: "What ship carries Princess Leia in Episode IV?",
+                a: "Tantive IV"
+            }]
+        };
+
+        let score = 0;
+        let currentQuestion = null;
+        let currentPoints = 0;
+        let currentCell = null;
+
+        const board = document.getElementById('board');
+        const modal = document.getElementById('modal');
+        const questionText = document.getElementById('questionText');
+        const scoreDisplay = document.getElementById('score');
+        const answerInput = document.getElementById('answerInput');
+
+        function createBoard() {
+            categories.forEach(category => {
+                const header = document.createElement('div');
+                header.className = 'cell category';
+                header.innerText = category;
+                board.appendChild(header);
+            });
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < categories.length; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const value = (i + 1) * 100;
+                    cell.innerText = `$${value}`;
+                    const cat = categories[j];
+                    cell.onclick = () => openQuestion(cat, i, value, cell);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function openQuestion(category, index, points, cell) {
+            const {
+                q,
+                a
+            } = questions[category][index];
+            currentQuestion = a;
+            currentPoints = points;
+            currentCell = cell;
+            questionText.innerText = q;
+            answerInput.value = '';
+            modal.style.display = 'flex';
+            answerInput.focus();
+        }
+
+        function submitAnswer() {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswer = currentQuestion.trim().toLowerCase();
+            if (userAnswer === correctAnswer) {
+                score += currentPoints;
+            } else {
+                score -= currentPoints;
+            }
+            scoreDisplay.innerText = score;
+            currentCell.classList.add('disabled');
+            currentCell.onclick = null;
+            closeModal();
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        createBoard();
+    </script>
+</body>
+
+</html>
